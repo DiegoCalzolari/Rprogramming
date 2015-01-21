@@ -1,26 +1,36 @@
 makeCacheMatrix <- function(x = matrix()) {
-  m <- matrix(data=NA)
+  
+  m <- matrix(data=NA) #initializes the matrix to a single NA (can't use NULL here)
+  
   set <- function(y) {
-    x <<- y
-    m <<- NA
+    x <<- y #stores the matrix to be inverted
+    m <<- NA #flushes m to instruct cachesolve that there is no inverted one
   }
-  get <- function() x
-  setinverted <- function(inverted) m <<- inverted
-  getinverted <- function() m
+  
+  get <- function() x #returns the matrix to be inverted
+  
+  setinverted <- function(inverted) m <<- inverted #assigns the inverted matrix to m (caching)
+  
+  getinverted <- function() m #returns the inverted matrix stored in m (cached)
+  
   list(set = set, get = get,
        setinverted = setinverted,
-       getinverted = getinverted)
+       getinverted = getinverted) #creates the list of functions
 }
 
 cachesolve <- function(x=matrix(), ...) {
-  m<-matrix(data=NA)
-  m <- x$getinverted()
-  if(all(!is.na(m))) {
-    message("getting cached data")
-    return(m)
+  m<-matrix(data=NA) #initializes the matrix to a single NA (can't use NULL here). Just to be sure of the default case
+  
+  m <- x$getinverted() #gets the inverted matrix and assigns it to local m
+  
+  if(all(!is.na(m))) { #if what it gets is not an NA matrix then the value has been cached
+    message("getting cached data") #and it shows it's the case...
+    return(m) #returns m and exits
   }
-  data <- x$get()
-  m <- solve(data, ...)
-  x$setinverted(m)
-  m
+  
+  #if the above condition is not met then it's time to create the invertse and store it
+  data <- x$get() #gets the matrix to be inverted
+  m <- solve(data, ...) #inverts it
+  x$setinverted(m) #passes it to the special matrix object
+  m #returns the local copy
 }
